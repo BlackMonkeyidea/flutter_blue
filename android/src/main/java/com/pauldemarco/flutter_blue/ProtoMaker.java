@@ -71,7 +71,13 @@ public class ProtoMaker {
             for (int i = 0; i < msd.size(); i++) {
                 int key = msd.keyAt(i);
                 byte[] value = msd.valueAt(i);
-                a.putManufacturerData(key, ByteString.copyFrom(value));
+                try {
+                    // get contact Manufacturer Specific Data
+                    Map<java.lang.Integer, com.google.protobuf.ByteString> data = AdvertisementParser.parse(scanRecord.getBytes()).getManufacturerDataMap();
+                    a.putManufacturerData(key, data.get(key));
+                } catch (Exception e) {
+                    a.putManufacturerData(key, ByteString.copyFrom(value));
+                }
             }
             // Service Data
             Map<ParcelUuid, byte[]> serviceData = scanRecord.getServiceData();

@@ -118,10 +118,16 @@ class AdvertisementParser {
             throw new ArrayIndexOutOfBoundsException("Not enough data for Manufacturer specific data.");
           }
           int manufacturerId = data.getShort();
-          if((length - 2) > 0) {
+          if ((length - 2) > 0) {
             byte[] msd = new byte[length - 2];
             data.get(msd);
-            ret.putManufacturerData(manufacturerId, ByteString.copyFrom(msd));
+            try {
+              // contact Manufacturer Specific Data (include Scan response packet)
+              ByteString manufactureData = ret.getManufacturerDataOrThrow(manufacturerId);
+              ret.putManufacturerData(manufacturerId, manufactureData.concat(ByteString.copyFrom(msd)));
+            } catch (Exception e) {
+              ret.putManufacturerData(manufacturerId, ByteString.copyFrom(msd));
+            }
           }
           break;
         }
